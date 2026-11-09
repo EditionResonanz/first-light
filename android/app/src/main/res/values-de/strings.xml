@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Erstes Licht: Name der App auf dem Startbildschirm in dieser Sprache (Standard ist Englisch, siehe app/build.gradle) -->
+<resources>
+    <string name="appName">Erstes Licht</string>
+    <string name="launcherName">Erstes Licht</string>
+</resources>
