@@ -1,0 +1,48 @@
+# Erstes Licht – baut das Android-Paket (AAB) für Google Play.
+# Läuft bei jeder Änderung auf main und auf Knopfdruck (Actions → „Android-Paket bauen“ → Run workflow).
+# Das fertige, noch unsignierte Paket liegt danach im Zweig „pakete“. Signiert wird außerhalb von GitHub mit dem
+# Upload-Schlüssel, der nie in dieses öffentliche Verzeichnis kommt.
+name: Android-Paket bauen
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: android
+  cancel-in-progress: true
+jobs:
+  bauen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Einmalig: Liegt das Projekt als android.zip im Verzeichnis, wird es ausgepackt und als Ordner android/ gespeichert.
+      - name: Projekt auspacken (nur beim ersten Mal)
+        run: |
+          if [ -f android.zip ]; then
+            rm -rf android && unzip -q android.zip && git rm -q android.zip
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add android && git commit -qm "Android-Projekt ausgepackt" && git push
+          fi
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Bauen
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon bundleRelease
+      - name: Paket in den Zweig „pakete“ legen
+        run: |
+          AAB="$GITHUB_WORKSPACE/android/app/build/outputs/bundle/release/app-release.aab"
+          VC=$(grep -oP 'versionCode \K[0-9]+' android/app/build.gradle | head -1)
+          mkdir -p "$RUNNER_TEMP/pk" && cd "$RUNNER_TEMP/pk"
+          cp "$AAB" "erstes-licht-${VC}-unsigniert.aab"
+          sha256sum *.aab > SHA256.txt
+          echo "Gebaut aus $GITHUB_SHA am $(date -u +%Y-%m-%dT%H:%MZ)" > LIESMICH.txt
+          git init -q && git checkout -q -b pakete && git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Paket ${VC} aus ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" pakete
