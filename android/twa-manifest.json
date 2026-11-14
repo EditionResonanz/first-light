@@ -21,7 +21,7 @@
     "path": "./upload-key.jks",
     "alias": "upload"
   },
-  "appVersionCode": 1,
+  "appVersionCode": 2,
   "shortcuts": [],
   "generatorApp": "bubblewrap-core-1.27.0",
   "webManifestUrl": "https://humane-weltformel.de/licht/manifest.webmanifest",
@@ -30,11 +30,11 @@
   "alphaDependencies": {
     "enabled": false
   },
-  "enableSiteSettingsShortcut": false,
+  "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
   "fullScopeUrl": "https://humane-weltformel.de/licht/",
-  "minSdkVersion": 21,
+  "minSdkVersion": 24,
   "orientation": "default",
   "fingerprints": [],
   "additionalTrustedOrigins": [],
@@ -43,5 +43,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersionName": "1.0.0"
+  "appVersionName": "1.0.1"
 }
